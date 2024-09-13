@@ -1,0 +1,15 @@
+{
+  "name": "customshirtwebsite",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">     <a href=\"https://www.uit.edu.vn/\" title=\"Trường Đại học Công nghệ Thông tin\" target=\"_blank\">         <img src=\"https://www.uit.edu.vn/sites/vi/files/banner_uit_15.png\">     </a> </div>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0",
+    "mongoose": "^8.6.2"
+  }
+}
