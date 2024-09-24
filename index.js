@@ -7,6 +7,9 @@ const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoute.js");
+const billRoutes = require("./routes/billRoute.js");
+const userRoutes = require("./routes/userRoute.js");
+const shirtRoutes = require("./routes/shirtRoute.js");
 //config
 dotenv.config();
 //express app
@@ -34,9 +37,9 @@ app.use(cookieParser());
 app.use(cors());
 //express
 app.use("/auth", authRoutes);
-// app.use("/playlists", playlistRoutes);
-// app.use("/report", reportRoutes);
-// app.use("/comment", commentRoutes);
+app.use("/bill", billRoutes);
+app.use("/user", userRoutes);
+app.use("/shirt", shirtRoutes);
 //connect to mongodb
 
 mongoose

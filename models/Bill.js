@@ -46,7 +46,12 @@ const billSchema = new Schema(
     },
     paymentMethod: {
       type: String,
+      enum: ["Cash", "Digital", "Credit Card"],
       required: true,
+    },
+    address: {
+      type: String,
+      default: "UIT",
     },
   },
   {
