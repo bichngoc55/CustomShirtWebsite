@@ -13,7 +13,7 @@ const ShirtSchema = new Schema(
       required: true,
     },
     color: {
-      type: String,
+      type: [String],
       enum: ["black", "white"],
       required: true,
     },
