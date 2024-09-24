@@ -3,25 +3,27 @@ const { Schema } = mongoose;
 
 const ShirtSchema = new Schema(
   {
-    shirtId: {
-      type: String,
-      required: true,
-    },
     name: {
       type: String,
       required: true,
     },
     size: {
+      type: [String],
       enum: ["S", "M", "L", "XL", "XXL"],
+      required: true,
     },
     color: {
+      type: String,
       enum: ["black", "white"],
+      required: true,
     },
     isSale: {
       type: Boolean,
+      default: false,
     },
-    isNew: {
+    isNewShirt: {
       type: Boolean,
+      default: true,
     },
     price: {
       type: Number,
@@ -32,13 +34,11 @@ const ShirtSchema = new Schema(
     },
     imageUrl: {
       type: String,
-      required: true,
     },
     reviews: {
       userId: {
         type: Schema.Types.ObjectId,
         ref: "User",
-        required: true,
       },
       stars: {
         type: Number,
