@@ -2,9 +2,34 @@ const mongoose = require("mongoose");
 const User = require("./User");
 const { Schema } = mongoose;
 
+// const messageSchema = new Schema(
+//   {
+//     senderId: {
+//       type: Schema.Types.ObjectId,
+//       ref: "User",
+//       required: true,
+//     },
+//     content: {
+//       type: String,
+//       required: true,
+//     },
+//     timestamp: {
+//       type: Date,
+//       default: Date.now,
+//     },
+//   },
+//   { _id: false }
+// );
+// models/Message.js
+
 const messageSchema = new Schema(
   {
-    senderId: {
+    sender: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    receiver: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -13,12 +38,16 @@ const messageSchema = new Schema(
       type: String,
       required: true,
     },
-    timestamp: {
-      type: Date,
-      default: Date.now,
+    read: {
+      type: Boolean,
+      default: false,
+    },
+    isUnsent: {
+      type: Boolean,
+      default: false,
     },
   },
-  { _id: false }
+  { timestamps: true }
 );
 
 const Message = mongoose.model("Message", messageSchema);

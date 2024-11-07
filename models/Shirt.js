@@ -21,6 +21,11 @@ const ShirtSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    salePercent: {
+      type: Number,
+      default: 0,
+    },
+
     isNewShirt: {
       type: Boolean,
       default: true,
@@ -33,7 +38,11 @@ const ShirtSchema = new Schema(
       type: String,
     },
     imageUrl: {
-      type: String,
+      type: [String],
+    },
+    quantity: {
+      type: Number,
+      default: 0,
     },
     reviews: {
       userId: {
@@ -46,7 +55,6 @@ const ShirtSchema = new Schema(
       },
       comment: {
         type: String,
-        default: "Dinh noc kich tran bay phat phoi",
       },
     },
   },

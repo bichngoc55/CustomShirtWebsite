@@ -7,6 +7,7 @@ const UserSchema = new Schema(
     username: {
       type: String,
       required: true,
+      unique: true,
       max: 50,
     },
     email: {
@@ -41,24 +42,53 @@ const UserSchema = new Schema(
       type: String,
       default: "active",
     },
-    favoriteShirtNFTId: {
-      type: String,
-      min: 5,
-      max: 70,
-    },
-    shirtNFTs: [
+    walletAddresses: [
       {
-        nftId: { type: String },
-        name: { type: String },
-        description: { type: String },
-        imageUrl: { type: String },
+        blockchain: {
+          type: String,
+          enum: ["ethereum", "polygon", "solana"],
+          required: true,
+        },
+        address: {
+          type: String,
+          required: true,
+        },
+        isDefault: {
+          type: Boolean,
+          default: false,
+        },
+        label: String,
       },
     ],
-    savedDesign: [
+    nftCollection: [
       {
-        designId: { type: Schema.Types.ObjectId, ref: "Design" },
+        mintedDesigns: {
+          type: Schema.Types.ObjectId,
+          ref: "Design",
+        },
+        acquiredAt: {
+          type: Date,
+          default: Date.now,
+        },
+        acquisitionType: {
+          type: String,
+          enum: ["minted", "purchased", "received"],
+          required: true,
+        },
+        transactionHash: String,
+        price: {
+          amount: Number,
+          currency: String,
+        },
       },
     ],
+    createdDesigns: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Design",
+      },
+    ],
+
     recentViewedShirts: [
       {
         shirtId: { type: Schema.Types.ObjectId, ref: "Shirt" },

@@ -6,16 +6,17 @@ const voucherSchema = new Schema(
       type: String,
       required: true,
     },
+    code: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     discount: {
       type: Number,
       required: true,
     },
     description: {
       type: String,
-    },
-    imageUrl: {
-      type: String,
-      default: "",
     },
     status: {
       type: String,
@@ -27,6 +28,10 @@ const voucherSchema = new Schema(
     },
     endDate: {
       type: Date,
+      required: true,
+    },
+    conditions: {
+      type: String,
       required: true,
     },
   },

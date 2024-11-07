@@ -1,4 +1,4 @@
-const Bill = require("../models/Bill.js");
+const Bill = require("../models/Order.js");
 // Get all orders
 const getAllBills = async (req, res) => {
   try {

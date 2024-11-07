@@ -25,7 +25,9 @@ const getDetailShirt = async (req, res) => {
 // Update a Shirt
 const updateShirt = async (req, res) => {
   try {
-    const shirt = await Shirts.findByIdAndUpdate(req.params.id, req.body, {
+    const { id } = req.params;
+    const updatedProduct = req.body;
+    const shirt = await Shirts.findByIdAndUpdate(id, updatedProduct, {
       new: true,
     });
     if (!shirt) {
@@ -52,7 +54,8 @@ const addShirt = async (req, res) => {
 // Delete a Shirt
 const deleteShirt = async (req, res) => {
   try {
-    const shirt = await Shirts.findByIdAndDelete(req.params.id);
+    const { id } = req.body;
+    const shirt = await Shirts.findByIdAndDelete(id);
     if (!shirt) {
       return res.status(404).json({ error: "shirt not found" });
     }
