@@ -7,6 +7,8 @@ const {
   deleteBill,
   updateBill,
 } = require("../controllers/billController.js");
+const validateRequest = require("../validation/validateRequest.js");
+const validateBill = require("../validation/orderValidation.js");
 
 const router = express.Router();
 

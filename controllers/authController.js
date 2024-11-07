@@ -13,6 +13,7 @@ const hashOptions = {
 const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    console.log(username, email, password);
     const isValidEmail = validator.isEmail(email);
     if (!isValidEmail) {
       return res.status(400).json({ message: "Invalid email" });
@@ -36,8 +37,9 @@ const register = async (req, res) => {
 };
 const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const { email, password } = req.body;
+    console.log(email, password);
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
@@ -58,7 +60,7 @@ const login = async (req, res) => {
       sameSite: "strict",
     });
     delete user.password;
-    res.status(200).json({ token, user, refreshToken });
+    res.status(200).json({ token, user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

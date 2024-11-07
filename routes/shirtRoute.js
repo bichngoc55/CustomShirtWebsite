@@ -9,7 +9,6 @@ const {
 
 const router = express.Router();
 const checkIsAdmin = require("../middleware/isAdminMiddleware.js");
-
 /* READ */
 router.get("/", getAllShirts);
 
@@ -18,7 +17,8 @@ router.get("/:id", getDetailShirt);
 /* CREATE */
 router.post("/add", addShirt);
 /* UPDATE */
-router.patch("/:id", checkIsAdmin, updateShirt);
+// router.patch("/:id", checkIsAdmin, updateShirt);
+router.patch("/:id", updateShirt);
 /* DELETE */
 router.delete("/:id", checkIsAdmin, deleteShirt);
 
