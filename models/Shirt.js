@@ -45,13 +45,16 @@ const ShirtSchema = new Schema(
       default: 0,
     },
     reviews: {
-      userId: {
+      reviewCustomerID: {
         type: Schema.Types.ObjectId,
         ref: "User",
       },
       stars: {
         type: Number,
         default: 5,
+      },
+      reviewImage: {
+        type: [String],
       },
       comment: {
         type: String,

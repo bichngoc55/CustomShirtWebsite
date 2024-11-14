@@ -20,7 +20,7 @@ router.get("/:id", verifyToken, getDetailUser);
 /* CREATE */
 router.post("/add", verifyToken, checkIsAdmin, addUser);
 /* UPDATE */
-router.patch("/:id", verifyToken, checkIsAdmin, updateUser);
+router.patch("/:id", verifyToken, updateUser);
 /* UPDATE */
 
 /* DELETE */

@@ -5,6 +5,7 @@ const {
   updateShirt,
   addShirt,
   deleteShirt,
+  updateShirtReview,
 } = require("../controllers/shirtController.js");
 
 const router = express.Router();
@@ -19,6 +20,8 @@ router.post("/add", addShirt);
 /* UPDATE */
 // router.patch("/:id", checkIsAdmin, updateShirt);
 router.patch("/:id", updateShirt);
+
+router.patch("/:id/review", updateShirtReview);
 /* DELETE */
 router.delete("/:id", checkIsAdmin, deleteShirt);
 

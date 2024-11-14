@@ -1,4 +1,3 @@
-//dặt hàng đi má
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -11,19 +10,23 @@ const OrderDetailsSchema = new Schema(
     },
     design: {
       type: Schema.Types.ObjectId,
-      refPath: "Design",
+      ref: "Design",
     },
     product: {
       type: Schema.Types.ObjectId,
-      refPath: "Shirt",
+      ref: "Shirt",
     },
     productSize: {
-      type: [String],
+      type: String,
       enum: ["S", "M", "L", "XL", "XXL"],
       required: true,
     },
+    productPrice: {
+      type: Number,
+      required: true,
+    },
     productColor: {
-      type: [String],
+      type: String,
       enum: ["black", "white"],
       required: true,
     },
@@ -38,5 +41,5 @@ const OrderDetailsSchema = new Schema(
   }
 );
 
-const OrderDetails = mongoose.model("Order", OrderDetailsSchema);
-module.exports = { OrderDetails, OrderDetailsSchema };
+const OrderDetails = mongoose.model("OrderDetails", OrderDetailsSchema);
+module.exports = OrderDetails;
