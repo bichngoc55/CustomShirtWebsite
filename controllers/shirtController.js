@@ -51,6 +51,7 @@ const updateShirtReview = async (req, res) => {
     const order = await Order.findOne({
       "userInfo.userId": reviewCustomerID,
       items: { $in: [productId] },
+      deliveryStatus: "delivered",
     });
 
     if (!order) {

@@ -30,9 +30,12 @@ const OrderSchema = new Schema(
       },
     ],
     voucherId: {
-      // type: Schema.Types.ObjectId,
-      // ref: "Voucher",
-      type: "String",
+      discount: {
+        type: Number,
+      },
+      code: {
+        type: String,
+      },
     },
     deliveryDate: {
       type: Date,
@@ -54,6 +57,7 @@ const OrderSchema = new Schema(
     orderStatus: {
       type: String,
       enum: ["processing", "confirmed", "refused"],
+      default: "processing",
       required: true,
     },
     paymentDetails: {
@@ -87,7 +91,7 @@ const OrderSchema = new Schema(
     deliveryStatus: {
       type: String,
       enum: ["Pending", "On delivery", "delivered", "cancelled"],
-      default: "On delivery",
+      default: "Pending",
     },
   },
   {
