@@ -4,10 +4,24 @@ const { Schema } = mongoose;
 
 const OrderSchema = new Schema(
   {
-    order: {
-      type: Schema.Types.ObjectId,
-      ref: "Order",
-      required: true,
+    userInfo: {
+      userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      phone: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
     },
     items: [
       {
@@ -16,8 +30,12 @@ const OrderSchema = new Schema(
       },
     ],
     voucherId: {
-      type: Schema.Types.ObjectId,
-      ref: "Voucher",
+      discount: {
+        type: Number,
+      },
+      code: {
+        type: String,
+      },
     },
     deliveryDate: {
       type: Date,
@@ -33,7 +51,13 @@ const OrderSchema = new Schema(
     },
     shippingMethod: {
       type: String,
-      enum: ["standard", "budget", "fast"],
+      enum: ["standard", "express", "same day"],
+      required: true,
+    },
+    orderStatus: {
+      type: String,
+      enum: ["processing", "confirmed", "refused"],
+      default: "processing",
       required: true,
     },
     paymentDetails: {
@@ -59,13 +83,16 @@ const OrderSchema = new Schema(
       paidAt: Date,
     },
     billingAddress: {
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      country: String,
+      province: String,
+      district: String,
+      details: String,
     },
     note: String,
+    deliveryStatus: {
+      type: String,
+      enum: ["Pending", "On delivery", "delivered", "cancelled"],
+      default: "Pending",
+    },
   },
   {
     timestamps: true,

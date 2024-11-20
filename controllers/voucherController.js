@@ -46,7 +46,6 @@ const createVoucher = async (req, res) => {
   }
 };
 
-// Get all vouchers with filtering and pagination
 const getVouchers = async (req, res) => {
   try {
     const {
@@ -185,7 +184,9 @@ const deleteVoucher = async (req, res) => {
 const validateVoucher = async (req, res) => {
   try {
     const { code } = req.params;
+    console.log(code);
     const voucher = await Voucher.findOne({ code });
+    console.log(voucher);
 
     if (!voucher) {
       return res.status(404).json({
@@ -200,6 +201,7 @@ const validateVoucher = async (req, res) => {
       success: true,
       data: {
         discount: voucher.discount,
+        code: voucher.code,
         conditions: voucher.conditions,
       },
       message: "Voucher is valid",

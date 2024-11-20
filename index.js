@@ -7,10 +7,15 @@ const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoute.js");
+const cron = require("node-cron");
 const billRoutes = require("./routes/billRoute.js");
 const userRoutes = require("./routes/userRoute.js");
 const cartRoutes = require("./routes/cartRoute.js");
 const voucherRoutes = require("./routes/voucherRoute.js");
+const messageRoutes = require("./routes/messageRoute.js");
+const orderRoutes = require("./routes/orderRoute.js");
+const orderDetailsRoutes = require("./routes/orderDetailsRoutes.js");
+const feedbackRoutes = require("./routes/feedbackRoute.js");
 
 // const { createHelia } = require("helia");
 // const { unixfs } = require("@helia/unixfs");
@@ -50,7 +55,19 @@ app.use("/bill", billRoutes);
 app.use("/user", userRoutes);
 app.use("/shirt", shirtRoutes);
 app.use("/cart", cartRoutes);
+app.use("/message", messageRoutes);
 app.use("/voucher", voucherRoutes);
+app.use("/orderDetails", orderDetailsRoutes);
+app.use("/order", orderRoutes);
+app.use("/feedback", feedbackRoutes);
+// cron.schedule("0 0 * * *", async () => {
+//   try {
+//     await scheduledDeliveryStatusUpdate();
+//     console.log("Scheduled delivery status update completed");
+//   } catch (error) {
+//     console.error("Scheduled task failed:", error);
+//   }
+// });
 //connect to mongodb
 mongoose
   .connect(process.env.URI)
