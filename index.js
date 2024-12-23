@@ -4,6 +4,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const ngrok = require("ngrok");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoute.js");
@@ -16,6 +17,9 @@ const messageRoutes = require("./routes/messageRoute.js");
 const orderRoutes = require("./routes/orderRoute.js");
 const orderDetailsRoutes = require("./routes/orderDetailsRoutes.js");
 const feedbackRoutes = require("./routes/feedbackRoute.js");
+const TitanImageService = require("./utils/model.js");
+const designRoutes = require("./routes/designRoute.js");
+const vnpayRoutes = require("./routes/vnpayRoutes");
 
 // const { createHelia } = require("helia");
 // const { unixfs } = require("@helia/unixfs");
@@ -33,11 +37,20 @@ const app = express();
 //use
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-// app.use(
-//   cors({
-//     origin: "http://localhost:3005",
-//   })
-// );
+(async function () {
+  try {
+    const url = await ngrok.connect({
+      proto: "http",
+      addr: 3005,
+      region: "us",
+      authtoken: process.env.NGROK_AUTH,
+    });
+    console.log(`Ngrok tunnel created: ${url}`);
+    process.env.NGROK_URL = url;
+  } catch (error) {
+    console.error("Ngrok Error:", error);
+  }
+})();
 app.use(cors());
 app.use(morgan("common"));
 app.use(express.json());
@@ -60,14 +73,23 @@ app.use("/voucher", voucherRoutes);
 app.use("/orderDetails", orderDetailsRoutes);
 app.use("/order", orderRoutes);
 app.use("/feedback", feedbackRoutes);
-// cron.schedule("0 0 * * *", async () => {
-//   try {
-//     await scheduledDeliveryStatusUpdate();
-//     console.log("Scheduled delivery status update completed");
-//   } catch (error) {
-//     console.error("Scheduled task failed:", error);
-//   }
-// });
+app.use("/design", designRoutes);
+app.use("/vnpay", vnpayRoutes);
+
+app.post("/api/generate-image", async (req, res) => {
+  const { prompt } = req.body;
+
+  try {
+    const result = await TitanImageService.generateImage(prompt);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Image generation failed",
+    });
+  }
+});
+
 //connect to mongodb
 mongoose
   .connect(process.env.URI)

@@ -16,15 +16,40 @@ const validateUniqueVoucherCode = async (code, id = null) => {
   }
 };
 
-const validateVoucherStatus = async (voucher) => {
+// const validateVoucherStatus = async (voucher) => {
+//   const currentDate = new Date();
+//   if (
+//     voucher.status !== "active" ||
+//     currentDate < new Date(voucher.startDate) ||
+//     currentDate > new Date(voucher.endDate)
+//   ) {
+//     throw new Error("Voucher is not valid at this time");
+//   }
+// };
+const validateVoucherStatus = async (voucher, userId) => {
   const currentDate = new Date();
-  if (
-    voucher.status !== "active" ||
-    currentDate < new Date(voucher.startDate) ||
-    currentDate > new Date(voucher.endDate)
-  ) {
-    throw new Error("Voucher is not valid at this time");
+
+  if (voucher.status === "expired") {
+    throw new Error("This voucher has expired");
   }
+
+  if (voucher.status === "used" && voucher.isOneTime) {
+    throw new Error("This voucher has already been used");
+  }
+
+  if (currentDate < voucher.startDate) {
+    throw new Error("This voucher is not yet active");
+  }
+
+  if (currentDate > voucher.endDate) {
+    throw new Error("This voucher has expired");
+  }
+
+  if (voucher.isOneTime && (await voucher.hasBeenUsedBy(userId))) {
+    throw new Error("You have already used this voucher");
+  }
+
+  return true;
 };
 
 module.exports = {

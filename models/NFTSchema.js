@@ -13,8 +13,8 @@ const NFTSchema = new Schema({
   },
   blockchain: {
     type: String,
-    enum: ["ethereum", "polygon", "solana"],
-    default: "polygon",
+    enum: ["ethereum", "polygon", "sepolia"],
+    default: "sepolia",
   },
   mintedAt: {
     type: Date,

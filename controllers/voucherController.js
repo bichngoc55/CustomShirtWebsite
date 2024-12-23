@@ -48,39 +48,90 @@ const createVoucher = async (req, res) => {
 
 const getVouchers = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      status,
-      sortBy = "createdAt",
-      order = "desc",
-    } = req.query;
+    const { user } = req;
+    const currentDate = new Date();
+    const orderTotal = req.query.orderTotal
+      ? parseFloat(req.query.orderTotal)
+      : 0;
 
-    const query = {};
-    if (status) query.status = status;
+    // Delete expired vouchers
+    await Voucher.deleteMany({
+      endDate: { $lt: currentDate },
+    });
 
-    // Check if any vouchers have expired and update their status
-    await updateExpiredVoucherStatus();
+    // Base query for active vouchers
+    let baseQuery = {
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+      status: "active",
+    };
 
-    const sortOptions = {};
-    sortOptions[sortBy] = order === "desc" ? -1 : 1;
+    let vouchers = [];
 
-    const vouchers = await Voucher.find(query)
-      .sort(sortOptions)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .exec();
+    if (user) {
+      // Find regular vouchers and birthday vouchers for the user
+      const userVouchers = await Voucher.find({
+        $or: [
+          baseQuery,
+          {
+            code: { $regex: `BDAY-${user._id}`, $options: "i" },
+            status: "active",
+          },
+        ],
+      });
 
-    const count = await Voucher.countDocuments(query);
+      // Process vouchers and check applicability
+      vouchers = userVouchers.map((voucher) => ({
+        _id: voucher._id,
+        name: voucher.name,
+        code: voucher.code,
+        discount: voucher.discount,
+        description: voucher.description,
+        conditions: voucher.conditions,
+        isOneTime: voucher.isOneTime,
+        startDate: voucher.startDate,
+        endDate: voucher.endDate,
+        isApplicable: true, // You might want to add additional logic here
+      }));
+    } else {
+      // If no user, only get public vouchers
+      const publicVouchers = await Voucher.find(baseQuery);
+      vouchers = publicVouchers.map((voucher) => ({
+        _id: voucher._id,
+        name: voucher.name,
+        code: voucher.code,
+        discount: voucher.discount,
+        description: voucher.description,
+        conditions: voucher.conditions,
+        isOneTime: voucher.isOneTime,
+        startDate: voucher.startDate,
+        endDate: voucher.endDate,
+        isApplicable: true, // You might want to add additional logic here
+      }));
+    }
+
+    // Add special voucher for high-value orders
+    if (orderTotal >= 400000) {
+      vouchers.push({
+        _id: "total-value-special",
+        name: "Total Value Discount",
+        code: "TOTAL30",
+        discount: 30,
+        description: "Special discount for orders above 400,000 VND",
+        conditions: "Order total must be at least 400,000 VND",
+        isOneTime: false,
+        startDate: currentDate,
+        endDate: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000), // Valid for 24 hours
+        isApplicable: true,
+      });
+    }
 
     res.status(200).json({
       success: true,
       data: vouchers,
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(count / limit),
-      totalItems: count,
     });
   } catch (error) {
+    console.error("Error in getVouchers:", error);
     res.status(500).json({
       success: false,
       message: "Error fetching vouchers",
@@ -278,8 +329,34 @@ const getVoucherStats = async (req, res) => {
     });
   }
 };
+// create bithrday
+const createBirthdayVoucher = async (userId, birthDate) => {
+  const currentDate = new Date();
+  const userBirthDate = new Date(birthDate);
 
-// Helper function to update expired voucher status
+  const startDate = new Date(
+    currentDate.getFullYear(),
+    userBirthDate.getMonth(),
+    userBirthDate.getDate()
+  );
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + 7);
+
+  const birthdayVoucher = new Voucher({
+    name: "Birthday Special",
+    code: `BDAY-${userId}-${currentDate.getFullYear()}`,
+    discount: 20,
+    description: "Birthday special 20% discount",
+    startDate,
+    endDate,
+    conditions: "Birthday special offer - one-time use only",
+    isOneTime: true,
+    status: "active",
+  });
+
+  await birthdayVoucher.save();
+  return birthdayVoucher;
+};
 const updateExpiredVoucherStatus = async () => {
   const currentDate = new Date();
   await Voucher.updateMany(
@@ -299,4 +376,7 @@ module.exports = {
   deleteVoucher,
   validateVoucher,
   getVoucherStats,
+  createBirthdayVoucher,
+  updateExpiredVoucherStatus,
+  // updateExpiredVoucherStatus chua lam j
 };

@@ -8,7 +8,6 @@ const OrderSchema = new Schema(
       userId: {
         type: Schema.Types.ObjectId,
         ref: "User",
-        required: true,
       },
       name: {
         type: String,
@@ -51,7 +50,7 @@ const OrderSchema = new Schema(
     },
     shippingMethod: {
       type: String,
-      enum: ["standard", "express", "same day"],
+      enum: ["standard", "express", "same-day"],
       required: true,
     },
     orderStatus: {
@@ -71,14 +70,12 @@ const OrderSchema = new Schema(
         enum: ["pending", "completed", "failed", "refunded"],
         required: true,
       },
-      cardExpirationDate: {
-        type: Date,
-      },
-      transactionId: String,
+      orderId: String,
+      paymentMethodId: String,
       last4Digits: String,
       cardBrand: {
         type: String,
-        enum: ["Visa", "Paypal"],
+        enum: ["Visa", "Paypal", "Napas"],
       },
       paidAt: Date,
     },
@@ -92,6 +89,10 @@ const OrderSchema = new Schema(
       type: String,
       enum: ["Pending", "On delivery", "delivered", "cancelled"],
       default: "Pending",
+    },
+    branch: {
+      type: Number,
+      enum: [1, 2, 3],
     },
   },
   {

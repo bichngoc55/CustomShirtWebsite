@@ -99,14 +99,14 @@ const addShirt = async (req, res) => {
 // Delete a Shirt
 const deleteShirt = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
     const shirt = await Shirts.findByIdAndDelete(id);
     if (!shirt) {
       return res.status(404).json({ error: "shirt not found" });
     }
     res.status(200).json({ message: "shirt deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete shirt" });
+    res.status(500).json({ error: error.message });
   }
 };
 

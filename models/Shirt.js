@@ -44,6 +44,10 @@ const ShirtSchema = new Schema(
       type: Number,
       default: 0,
     },
+    tag: {
+      type: [String],
+      default: null,
+    },
     reviews: {
       reviewCustomerID: {
         type: Schema.Types.ObjectId,

@@ -20,7 +20,6 @@ const shirtValidation = {
         .required(),
     }),
     quantityAvailable: Joi.number().min(0).required(),
-
     isActive: Joi.boolean(),
     featured: Joi.boolean(),
   }),

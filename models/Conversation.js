@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-const User = require("./User");
-const Message = require("./Message");
+const mongoose = require("mongoose"); 
 const { Schema } = mongoose;
 const conversationSchema = new Schema(
   {
