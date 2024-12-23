@@ -1,19 +1,51 @@
 const Order = require("../models/Order.js");
+const { emailTemplates, transporter } = require("../utils/email.js");
+const OrderDetails = require("../models/OrderDetails.js");
 
+const sendOrderNotification = async (order, type) => {
+  try {
+    if (!order.userInfo || !order.userInfo.email) {
+      throw new Error("Customer email not found");
+    }
+
+    const template = emailTemplates[type](order);
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: order.userInfo.email,
+      subject: template.subject,
+      text: template.text,
+    };
+
+    await transporter.sendMail(mailOptions);
+    // console.log(`Order notification email sent to ${order.userInfo.email}`);
+  } catch (error) {
+    console.error("Error sending order notification:", error);
+    throw error;
+  }
+};
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("items");
-
-    for (const order of orders) {
-      await order.populate("items.product");
-    }
+    const orders = await Order.find({
+      "paymentDetails.status": { $ne: "failed" },
+    }).populate({
+      path: "items",
+      populate: [
+        {
+          path: "design",
+          model: "Design",
+        },
+        {
+          path: "product",
+          model: "Shirt",
+        },
+      ],
+    });
 
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 // Get order by ID
 const getOrderById = async (req, res) => {
   try {
@@ -32,14 +64,18 @@ const getOrderById = async (req, res) => {
 // Create new order
 const createOrder = async (req, res) => {
   try {
-    // const newOrder = await Order.create(req.body);
     console.log(req.body);
+    // let { paymentDetails } = req.body;
 
     const newOrder = new Order(req.body);
+
+    await sendOrderNotification(newOrder, "created");
     await newOrder.save();
+
     res.status(201).json(newOrder);
   } catch (error) {
     res.status(400).json({ message: error.message });
+    console.log(error.message);
   }
 };
 
@@ -62,12 +98,23 @@ const updateOrder = async (req, res) => {
 // Delete order
 const deleteOrder = async (req, res) => {
   try {
-    const order = await Order.findByIdAndDelete(req.params.id);
+    const order = await Order.findById(req.params.id);
+
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
-    res.status(200).json({ message: "Order deleted successfully" });
+
+    if (order.items && order.items.length > 0) {
+      await OrderDetails.deleteMany({ _id: { $in: order.items } });
+    }
+
+    await Order.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      message: "Order and associated order details deleted successfully",
+    });
   } catch (error) {
+    console.error("Error deleting order:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -85,6 +132,7 @@ const updateDeliveryStatus = async (req, res) => {
     for (const order of orders) {
       if (order.deliveryDate < currentDate) {
         order.deliveryStatus = "delivered";
+        await sendOrderNotification(order, "delivered");
         await order.save();
         updatedOrders.push(order);
       }
@@ -116,6 +164,8 @@ const cancelOrder = async (req, res) => {
     }
 
     order.deliveryStatus = "cancelled";
+    await sendOrderNotification(order, "cancelled");
+
     // order.orderStatus = ""
     await order.save();
 
@@ -154,8 +204,15 @@ const updateOrderStatus = async (req, res) => {
 
     order.orderStatus = status;
 
+    // if (status === "refused") {
+    //   order.deliveryStatus = "cancelled";
+    // }
     if (status === "refused") {
       order.deliveryStatus = "cancelled";
+      await sendOrderNotification(order, "cancelled");
+    } else {
+      order.deliveryStatus = "On delivery";
+      await sendOrderNotification(order, "confirmed");
     }
     await order.save();
     res.status(200).json({
@@ -181,11 +238,105 @@ const scheduledDeliveryStatusUpdate = async () => {
       }
     );
 
-    console.log(`Updated ${result.modifiedCount} orders to delivered status`);
+    // console.log(`Updated ${result.modifiedCount} orders to delivered status`);
     return result;
   } catch (error) {
     console.error("Error in scheduled delivery status update:", error);
     throw error;
+  }
+};
+const getTopSellingShirts = async (req, res) => {
+  try {
+    const topSellingShirts = await OrderDetails.aggregate([
+      {
+        $group: {
+          _id: "$product",
+          totalQuantitySold: { $sum: "$productQuantity" },
+        },
+      },
+      {
+        $sort: { totalQuantitySold: -1 },
+      },
+      {
+        $limit: 4,
+      },
+      {
+        $lookup: {
+          from: "shirts",
+          localField: "_id",
+          foreignField: "_id",
+          as: "shirtDetails",
+        },
+      },
+      {
+        $unwind: "$shirtDetails",
+      },
+      {
+        $project: {
+          _id: "$_id",
+          name: "$shirtDetails.name",
+          price: "$shirtDetails.price",
+          totalQuantitySold: 1,
+          isSale: "$shirtDetails.isSale",
+          salePercent: "$shirtDetails.salePercent",
+          imageUrl: "$shirtDetails.imageUrl",
+          product: "$shirtDetails",
+        },
+      },
+    ]);
+
+    if (!topSellingShirts || topSellingShirts.length === 0) {
+      return res.status(404).json({ message: "No top selling shirts found" });
+    }
+
+    res.status(200).json(topSellingShirts);
+  } catch (error) {
+    console.error("Error in getTopSellingShirts:", error);
+    res.status(500).json({
+      message: "Error fetching top selling shirts",
+      error: error.message,
+    });
+  }
+};
+const autoRefuseUnconfirmedOrders = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const unconfirmedOrders = await Order.find({
+      orderStatus: "processing",
+      deliveryDate: { $lt: currentDate },
+    });
+
+    // console.log("Unconfirmed", unconfirmedOrders);
+    if (!unconfirmedOrders || unconfirmedOrders.length === 0) {
+      return res.status(200).json({
+        message: "No unconfirmed orders found within the deadline",
+
+        count: 0,
+      });
+    }
+    const updatedOrders = [];
+
+    for (const order of unconfirmedOrders) {
+      order.orderStatus = "refused";
+      order.deliveryStatus = "cancelled";
+
+      await sendOrderNotification(order, "refused");
+
+      await order.save();
+      updatedOrders.push(order);
+    }
+
+    res.status(200).json({
+      message: "Unconfirmed orders automatically refused",
+      updatedOrders,
+      count: updatedOrders.length,
+    });
+  } catch (error) {
+    console.error("Error in auto-refusing unconfirmed orders:", error);
+    res.status(500).json({
+      message: "Error auto-refusing unconfirmed orders",
+      error: error.message,
+    });
   }
 };
 module.exports = {
@@ -198,4 +349,6 @@ module.exports = {
   cancelOrder,
   updateOrderStatus,
   scheduledDeliveryStatusUpdate,
+  getTopSellingShirts,
+  autoRefuseUnconfirmedOrders,
 };

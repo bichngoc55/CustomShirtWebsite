@@ -8,7 +8,7 @@ const {
 const verifyToken = require("../middleware/authMiddleware.js");
 
 router.post("/send/:userId", sendMessage);
-router.post("/unsend/:messageId", unsendMessage);
+router.put("/unsend/:messageId", unsendMessage);
 router.get("/conversation/:id", getConversation);
 
 module.exports = router;

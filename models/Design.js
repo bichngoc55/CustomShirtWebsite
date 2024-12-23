@@ -12,9 +12,13 @@ const DesignSchema = new Schema(
       required: true,
     },
     color: {
-      type: [String],
+      type: String,
       enum: ["black", "white"],
     },
+    // canvasPreview: {
+    //   type: String,
+    //   default: "",
+    // },
     elements: [
       {
         type: {
@@ -22,9 +26,16 @@ const DesignSchema = new Schema(
           enum: ["text", "stickers", "shape"],
         },
         content: String,
+
         properties: {
           font: String,
           fontSize: Number,
+          points: [
+            {
+              x: { type: Number },
+              y: { type: Number },
+            },
+          ],
           color: String,
           position: {
             x: Number,
@@ -32,6 +43,10 @@ const DesignSchema = new Schema(
           },
           rotation: Number,
           scale: Number,
+          shapeType: String,
+          width: Number,
+          height: Number,
+          src: String,
         },
       },
     ],
@@ -45,22 +60,10 @@ const DesignSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    nftDetails: NFTSchema,
-    royalties: {
-      percentage: {
-        type: Number,
-        min: 0,
-        max: 25, // Maximum 25% royalty
-        default: 10,
-      },
-      address: String, // Wallet address to receive royalties
+    nftDetails: {
+      type: Schema.Types.ObjectId,
+      ref: "NFTSchema",
     },
-    licenseType: {
-      type: String,
-      enum: ["personal", "commercial", "exclusive"],
-      default: "personal",
-    },
-    tags: [String],
     mintingStatus: {
       type: String,
       enum: ["not_minted", "pending", "minted", "failed"],

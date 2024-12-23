@@ -8,6 +8,8 @@ const {
   updateVoucher,
   deleteVoucher,
   validateVoucher,
+  createBirthdayVoucher,
+  updateExpiredVoucherStatus,
 } = require("../controllers/voucherController");
 
 // CRUD routes
@@ -17,6 +19,8 @@ router.get("/stats", getVoucherStats);
 router.get("/:id", getVoucherById);
 router.patch("/:id", updateVoucher);
 router.delete("/:id", deleteVoucher);
+router.post("/birthday", createBirthdayVoucher);
+router.patch("/update-expired-status", updateExpiredVoucherStatus);
 
 // Additional routes
 router.get("/validate/:code", validateVoucher);

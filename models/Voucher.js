@@ -20,6 +20,7 @@ const voucherSchema = new Schema(
     },
     status: {
       type: String,
+      enum: ["active", "used", "expired"],
       default: "active",
     },
     startDate: {
@@ -34,6 +35,25 @@ const voucherSchema = new Schema(
       type: String,
       required: true,
     },
+    isOneTime: {
+      type: Boolean,
+      default: false,
+    },
+    usedBy: [
+      {
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        usedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        orderId: {
+          type: String,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
