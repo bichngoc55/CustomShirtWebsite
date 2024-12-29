@@ -383,25 +383,7 @@ const autoRefuseUnconfirmedOrders = async (req, res) => {
     });
   }
 }; 
- 
-const getTotalOrders = async (req, res) => {
-  try {
-    const totalOrders = await Order.find({
-      "paymentDetails.status": "completed",
-      orderStatus: "confirmed",
-    });
 
-    const totalCount = totalOrders.length;
-
-    res.status(200).json({
-      message: "Total confirmed and completed orders fetched successfully",
-      totalCount,
-    });
-  } catch (error) {
-    console.error("Error fetching total orders:", error);
-    res.status(500).json({ message: error.message });
-  }
-};
 
 module.exports = {
   getAllOrders,
