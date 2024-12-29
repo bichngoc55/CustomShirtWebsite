@@ -1,6 +1,6 @@
 const Order = require("../models/Order.js");
 const { emailTemplates, transporter } = require("../utils/email.js");
-const OrderDetails = require("../models/OrderDetails.js");
+const OrderDetails = require("../models/OrderDetails.js"); 
 
 const sendOrderNotification = async (order, type) => {
   try {
@@ -23,11 +23,10 @@ const sendOrderNotification = async (order, type) => {
     throw error;
   }
 };
+
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find({
-      "paymentDetails.status": { $ne: "failed" },
-    }).populate({
+    const orders = await Order.find().populate({
       path: "items",
       populate: [
         {
@@ -116,6 +115,51 @@ const deleteOrder = async (req, res) => {
   } catch (error) {
     console.error("Error deleting order:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+const updateOrderShipping = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { billingAddress, shippingFee, total } = req.body;
+
+    // Validate inputs
+    if (!billingAddress || !billingAddress.province || !billingAddress.district) {
+      return res.status(400).json({ message: "Invalid address information" });
+    }
+
+    if (typeof shippingFee !== 'number' || shippingFee < 0) {
+      return res.status(400).json({ message: "Invalid shipping fee" });
+    }
+
+    if (typeof total !== 'number' || total < 0) {
+      return res.status(400).json({ message: "Invalid total amount" });
+    }
+
+    // Find and update the order
+    const order = await Orders.findById(id);
+    
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Update order fields
+    order.billingAddress = billingAddress;
+    order.shippingFee = shippingFee;
+    order.total = total;
+
+    // Save changes
+    await order.save();
+
+    return res.status(200).json({
+      message: "Order shipping details updated successfully",
+      order
+    });
+  } catch (error) {
+    console.error('Error updating order shipping:', error);
+    return res.status(500).json({
+      message: "Failed to update order shipping details",
+      error: error.message
+    });
   }
 };
 
@@ -338,7 +382,27 @@ const autoRefuseUnconfirmedOrders = async (req, res) => {
       error: error.message,
     });
   }
+}; 
+ 
+const getTotalOrders = async (req, res) => {
+  try {
+    const totalOrders = await Order.find({
+      "paymentDetails.status": "completed",
+      orderStatus: "confirmed",
+    });
+
+    const totalCount = totalOrders.length;
+
+    res.status(200).json({
+      message: "Total confirmed and completed orders fetched successfully",
+      totalCount,
+    });
+  } catch (error) {
+    console.error("Error fetching total orders:", error);
+    res.status(500).json({ message: error.message });
+  }
 };
+
 module.exports = {
   getAllOrders,
   getOrderById,
@@ -350,5 +414,7 @@ module.exports = {
   updateOrderStatus,
   scheduledDeliveryStatusUpdate,
   getTopSellingShirts,
-  autoRefuseUnconfirmedOrders,
+  updateOrderShipping,
+  autoRefuseUnconfirmedOrders, 
+  getTotalOrders,
 };

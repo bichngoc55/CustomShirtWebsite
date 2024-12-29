@@ -5,7 +5,7 @@ const {
   updateShirt,
   addShirt,
   deleteShirt,
-  updateShirtReview,
+  updateShirtReview, 
 } = require("../controllers/shirtController.js");
 const imageSearchService = require("../utils/imageSearchService.js");
 const multer = require("multer");
@@ -14,9 +14,10 @@ const router = express.Router();
 const checkIsAdmin = require("../middleware/isAdminMiddleware.js");
 /* READ */
 router.get("/", getAllShirts);
-
+ 
 /* READ */
-router.get("/:id", getDetailShirt);
+router.get("/:id", getDetailShirt); 
+
 /* CREATE */
 router.post("/add", addShirt);
 /* UPDATE */
