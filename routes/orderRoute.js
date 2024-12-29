@@ -10,7 +10,8 @@ const {
   cancelOrder,
   updateOrderStatus,
   getTopSellingShirts,
-  autoRefuseUnconfirmedOrders,
+  autoRefuseUnconfirmedOrders,updateOrderShipping, 
+  getTotalOrders,
 } = require("../controllers/orderController");
 const verifyToken = require("../middleware/authMiddleware.js");
 
@@ -21,9 +22,12 @@ router.put("/delivery-status", updateDeliveryStatus);
 router.get("/", getAllOrders);
 router.get("/top-selling", getTopSellingShirts);
 router.get("/:id", getOrderById);
+router.get("/total", getTotalOrders);
 
 router.post("/add", createOrder);
 router.patch("/:id", updateOrder);
-router.delete("/:id", deleteOrder);
+router.patch("/shippingfee/:id",updateOrderShipping)
+
+router.delete("/:id", deleteOrder); 
 
 module.exports = router;
