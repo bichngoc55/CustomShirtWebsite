@@ -111,110 +111,36 @@ const emailTemplates = {
   DOMDOM`,
   }),
 };
-// const emailTemplates = {
-//   created: (orderDetails) => ({
-//     subject: "Order Confirmation",
-//     html: `
-//       <div style="font-family: 'Montserrat', sans-serif; line-height: 1.6; padding: 20px; background-color: #f9f9f9;">
-//         <h2 style="color: #333;">Dear ${orderDetails.userInfo.name},</h2>
-//         <p>Thank you for your order! Your order #${
-//           orderDetails._id
-//         } is being processed by our admin.</p>
-//         <h3 style="color: #007BFF;">Order Details:</h3>
-//         <ul>
-//           <li><strong>Total Amount:</strong> ${orderDetails.total} VND</li>
-//           <li><strong>Delivery Date:</strong> ${new Date(
-//             orderDetails.deliveryDate
-//           ).toLocaleDateString()}</li>
-//           <li><strong>Shipping Method:</strong> ${
-//             orderDetails.shippingMethod
-//           }</li>
-//           <li><strong>Payment Method:</strong> ${
-//             orderDetails.paymentDetails.method
-//           }</li>
-//         </ul>
-//         <p>We will notify you once your order is confirmed.</p>
-//         <p style="font-weight: bold;">Best regards,<br>DOMDOM</p>
-//       </div>
-//     `,
-//   }),
+const emailTemplatesResetPassword = {
+  resetRequest: (resetLink) => ({
+    subject: "Reset Your Password",
+    text: `Dear User,
 
-//   confirmed: (orderDetails) => ({
-//     subject: "Order Confirmed",
-//     html: `
-//       <div style="font-family: 'Montserrat', sans-serif; line-height: 1.6; padding: 20px; background-color: #f9f9f9;">
-//         <h2 style="color: #333;">Dear ${orderDetails.userInfo.name},</h2>
-//         <p>Your order #${
-//           orderDetails._id
-//         } has been confirmed and is being prepared for shipment.</p>
-//         <h3 style="color: #007BFF;">Order Details:</h3>
-//         <ul>
-//           <li><strong>Total Amount:</strong> $${orderDetails.total}</li>
-//           <li><strong>Delivery Date:</strong> ${new Date(
-//             orderDetails.deliveryDate
-//           ).toLocaleDateString()}</li>
-//           <li><strong>Shipping Method:</strong> ${
-//             orderDetails.shippingMethod
-//           }</li>
-//         </ul>
-//         <p>We'll update you when your order is out for delivery.</p>
-//         <p style="font-weight: bold;">Best regards,<br>DOMDOM</p>
-//       </div>
-//     `,
-//   }),
+You requested to reset your password. Please click on the link below to reset it:
 
-//   cancelled: (orderDetails) => ({
-//     subject: "Order Cancellation",
-//     html: `
-//       <div style="font-family: 'Montserrat', sans-serif; line-height: 1.6; padding: 20px; background-color: #f9f9f9;">
-//         <h2 style="color: #333;">Dear ${orderDetails.userInfo.name},</h2>
-//         <p>Your order #${orderDetails._id} has been cancelled.</p>
-//         <p>If you did not request this cancellation or have any questions, please contact our support team.</p>
-//         <p style="font-weight: bold;">Best regards,<br>DOMDOM</p>
-//       </div>
-//     `,
-//   }),
+${resetLink}
 
-//   delivered: (orderDetails) => ({
-//     subject: "Order Delivered",
-//     html: `
-//       <div style="font-family: 'Montserrat', sans-serif; line-height: 1.6; padding: 20px; background-color: #f9f9f9;">
-//         <h2 style="color: #333;">Dear ${orderDetails.userInfo.name},</h2>
-//         <p>Your order #${orderDetails._id} has been delivered.</p>
-//         <p>We hope you enjoy your purchase! If you have any questions or concerns, please don't hesitate to contact us.</p>
-//         <p style="font-weight: bold;">Best regards,<br>DOMDOM</p>
-//       </div>
-//     `,
-//   }),
+If you did not request this, please ignore this email.
 
-//   refused: (orderDetails) => ({
-//     subject: "Order Refused",
-//     html: `
-//       <div style="font-family: 'Montserrat', sans-serif; line-height: 1.6; padding: 20px; background-color: #f9f9f9;">
-//         <h2 style="color: #333;">Dear ${orderDetails.userInfo.name},</h2>
-//         <p>We regret to inform you that your order #${
-//           orderDetails._id
-//         } could not be processed.</p>
-//         <h3 style="color: #007BFF;">Order Details:</h3>
-//         <ul>
-//           <li><strong>Total Amount:</strong> ${orderDetails.total} VND</li>
-//           <li><strong>Delivery Date:</strong> ${new Date(
-//             orderDetails.deliveryDate
-//           ).toLocaleDateString()}</li>
-//           <li><strong>Shipping Method:</strong> ${
-//             orderDetails.shippingMethod
-//           }</li>
-//         </ul>
-//         <p>Unfortunately, we were unable to confirm and process your order within the expected timeframe.</p>
-//         <p>If you have any questions or would like to place a new order, please contact our customer support.</p>
-//         <p>We apologize for any inconvenience.</p>
-//         <p style="font-weight: bold;">Best regards,<br>DOMDOM</p>
-//       </div>
-//     `,
-//   }),
-// };
+Best regards,
+DOMDOM`,
+  }),
+
+  resetSuccess: () => ({
+    subject: "Password Successfully Reset",
+    text: `Dear User,
+
+Your password has been successfully reset. You can now log in with your new password.
+
+If you did not perform this action, please contact support immediately.
+
+Best regards,
+DOMDOM`,
+  }),
+};
 
 module.exports = {
   transporter,
   emailTemplates,
+  emailTemplatesResetPassword,
 };

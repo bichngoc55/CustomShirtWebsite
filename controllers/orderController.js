@@ -59,6 +59,45 @@ const getOrderById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+const getOrdersByCustomerId = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Customer ID is required" });
+    }
+    const orders = await Order.find({ "userInfo.userId": id })
+      .populate("userInfo.userId", "name email phone")
+      .populate("voucherId")
+      .populate({
+        path: "items",
+        populate: [
+          {
+            path: "design",
+            model: "Design",
+          },
+          {
+            path: "product",
+            model: "Shirt",
+          },
+        ],
+      });
+
+    // if (orders.length === 0) {
+    //   return res
+    //     .status(404)
+    //     .json({ message: "No orders found for this customer" });
+    // }
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching orders by customerId:", error);
+    res.status(500).json({
+      message: "An error occurred while fetching orders",
+      error: error.message,
+    });
+  }
+};
 
 // Create new order
 const createOrder = async (req, res) => {
@@ -223,6 +262,50 @@ const cancelOrder = async (req, res) => {
 };
 
 // for admin confirmation
+// const updateOrderStatus = async (req, res) => {
+//   try {
+//     const { status } = req.body;
+
+//     if (!["confirmed", "refused"].includes(status)) {
+//       return res.status(400).json({
+//         message:
+//           "Invalid status. Status must be either 'confirmed' or 'refused'",
+//       });
+//     }
+
+//     const order = await Order.findById(req.params.id);
+
+//     if (!order) {
+//       return res.status(404).json({ message: "Order not found" });
+//     }
+
+//     if (order.orderStatus !== "processing") {
+//       return res.status(400).json({
+//         message: "Can only update status for orders in processing state",
+//       });
+//     }
+
+//     order.orderStatus = status;
+
+//     // if (status === "refused") {
+//     //   order.deliveryStatus = "cancelled";
+//     // }
+//     if (status === "refused") {
+//       order.deliveryStatus = "cancelled";
+//       await sendOrderNotification(order, "cancelled");
+//     } else {
+//       order.deliveryStatus = "On delivery";
+//       await sendOrderNotification(order, "confirmed");
+//     }
+//     await order.save();
+//     res.status(200).json({
+//       message: `Order ${status} successfully`,
+//       order,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -234,7 +317,13 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate({
+      path: "items",
+      populate: {
+        path: "product",
+        model: "Shirt",
+      },
+    });
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -245,12 +334,24 @@ const updateOrderStatus = async (req, res) => {
         message: "Can only update status for orders in processing state",
       });
     }
+    if (status === "confirmed") {
+      for (const item of order.items) {
+        const product = item.product;
+        const orderedQuantity = item.productQuantity;
+
+        if (product.quantity < orderedQuantity) {
+          return res.status(400).json({
+            message: `Insufficient stock for product ${product.name}. Available: ${product.quantity}, Ordered: ${orderedQuantity}`,
+          });
+        }
+        await Shirt.findByIdAndUpdate(product._id, {
+          $inc: { quantity: -orderedQuantity },
+        });
+      }
+    }
 
     order.orderStatus = status;
 
-    // if (status === "refused") {
-    //   order.deliveryStatus = "cancelled";
-    // }
     if (status === "refused") {
       order.deliveryStatus = "cancelled";
       await sendOrderNotification(order, "cancelled");
@@ -258,16 +359,18 @@ const updateOrderStatus = async (req, res) => {
       order.deliveryStatus = "On delivery";
       await sendOrderNotification(order, "confirmed");
     }
+
     await order.save();
+
     res.status(200).json({
       message: `Order ${status} successfully`,
       order,
     });
   } catch (error) {
+    console.error("Error updating order status:", error);
     res.status(500).json({ message: error.message });
   }
 };
-
 const scheduledDeliveryStatusUpdate = async () => {
   try {
     const currentDate = new Date();
@@ -395,8 +498,9 @@ module.exports = {
   cancelOrder,
   updateOrderStatus,
   scheduledDeliveryStatusUpdate,
-  getTopSellingShirts,
-  updateOrderShipping,
-  autoRefuseUnconfirmedOrders, 
-  getTotalOrders,
+  getTopSellingShirts, 
+  autoRefuseUnconfirmedOrders,
+  getOrdersByCustomerId,
+  updateOrderShipping, 
+  getTotalOrders, 
 };

@@ -65,28 +65,6 @@ const UserSchema = new Schema(
         label: String,
       },
     ],
-    nftCollection: [
-      {
-        mintedDesigns: {
-          type: Schema.Types.ObjectId,
-          ref: "Design",
-        },
-        acquiredAt: {
-          type: Date,
-          default: Date.now,
-        },
-        acquisitionType: {
-          type: String,
-          enum: ["minted", "purchased", "received"],
-          required: true,
-        },
-        transactionHash: String,
-        price: {
-          amount: Number,
-          currency: String,
-        },
-      },
-    ],
     createdDesigns: [
       {
         type: Schema.Types.ObjectId,

@@ -9,8 +9,9 @@ const {
   updateDeliveryStatus,
   cancelOrder,
   updateOrderStatus,
-  getTopSellingShirts,
-  autoRefuseUnconfirmedOrders,updateOrderShipping, 
+  getTopSellingShirts, 
+  getOrdersByCustomerId, 
+  autoRefuseUnconfirmedOrders,updateOrderShipping,  
 } = require("../controllers/orderController");
 const verifyToken = require("../middleware/authMiddleware.js");
 
@@ -21,6 +22,7 @@ router.put("/delivery-status", updateDeliveryStatus);
 router.get("/", getAllOrders);
 router.get("/top-selling", getTopSellingShirts);
 router.get("/:id", getOrderById);
+router.get("/customer/:id", getOrdersByCustomerId);
 
 router.post("/add", createOrder);
 router.patch("/:id", updateOrder);
