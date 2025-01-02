@@ -1,6 +1,8 @@
 const Message = require("../models/Message.js");
 const mongoose = require("mongoose");
 
+const ADMIN_ID="6716e91039ea3d3dc8d3f65f"
+
 const sendMessage = async (req, res) => {
   try {
     const { receiverId, content, image } = req.body;
@@ -14,6 +16,28 @@ const sendMessage = async (req, res) => {
       image: image || null,
     });
 
+    await newMessage.save();
+    res.status(201).json(newMessage);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const adminSendMessage = async (req, res) => {
+  try {
+    const { receiverId, content, image } = req.body;
+    console.log("HEHEHHEHE");
+    
+    
+    const newMessage = new Message({
+      sender: ADMIN_ID,
+      receiver: receiverId,
+      content: content || "",
+      image: image || null,
+    });
+    console.log("HEHEHHEHE");
+
+    
     await newMessage.save();
     res.status(201).json(newMessage);
   } catch (error) {
@@ -74,6 +98,7 @@ const getConversation = async (req, res) => {
       .sort({ createdAt: 1 })
       .lean()
       .exec();
+    // const messages = await Message.findAll()
 
     const transformedMessages = messages.map((message) => ({
       ...message,
@@ -89,5 +114,7 @@ const getConversation = async (req, res) => {
 module.exports = {
   sendMessage,
   getConversation,
+  adminSendMessage,
   unsendMessage,
+  
 };
