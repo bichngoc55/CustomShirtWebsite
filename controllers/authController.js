@@ -13,7 +13,7 @@ const hashOptions = {
 const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    console.log(username, email, password);
+    // console.log(username, email, password);
     const isValidEmail = validator.isEmail(email);
     if (!isValidEmail) {
       return res.status(400).json({ message: "Invalid email" });
@@ -42,6 +42,11 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User not found" });
+    }
+    if (user.status === "down") {
+      return res
+        .status(403)
+        .json({ message: "Account is suspended. Please contact support." });
     }
     const isPasswordValid = await argon2.verify(user.password, password);
     if (!isPasswordValid) {

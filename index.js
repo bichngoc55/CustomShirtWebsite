@@ -20,6 +20,7 @@ const feedbackRoutes = require("./routes/feedbackRoute.js");
 const TitanImageService = require("./utils/model.js");
 const designRoutes = require("./routes/designRoute.js");
 const vnpayRoutes = require("./routes/vnpayRoutes");
+const nftRoutes = require("./routes/nftRoute.js");
 
 // const { createHelia } = require("helia");
 // const { unixfs } = require("@helia/unixfs");
@@ -37,20 +38,20 @@ const app = express();
 //use
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-(async function () {
-  try {
-    const url = await ngrok.connect({
-      proto: "http",
-      addr: 3005,
-      region: "us",
-      authtoken: process.env.NGROK_AUTH,
-    });
-    console.log(`Ngrok tunnel created: ${url}`);
-    process.env.NGROK_URL = url;
-  } catch (error) {
-    console.error("Ngrok Error:", error);
-  }
-})();
+// (async function () {
+//   try {
+//     const url = await ngrok.connect({
+//       proto: "http",
+//       addr: 3005,
+//       region: "us",
+//       authtoken: process.env.NGROK_AUTH,
+//     });
+//     console.log(`Ngrok tunnel created: ${url}`);
+//     process.env.NGROK_URL = url;
+//   } catch (error) {
+//     console.error("Ngrok Error:", error);
+//   }
+// })();
 app.use(cors());
 app.use(morgan("common"));
 app.use(express.json());
@@ -75,6 +76,7 @@ app.use("/order", orderRoutes);
 app.use("/feedback", feedbackRoutes);
 app.use("/design", designRoutes);
 app.use("/vnpay", vnpayRoutes);
+app.use("/nft", nftRoutes);
 
 app.post("/api/generate-image", async (req, res) => {
   const { prompt } = req.body;
