@@ -68,9 +68,21 @@ const getOrdersByCustomerId = async (req, res) => {
       return res.status(400).json({ message: "Customer ID is required" });
     }
     const orders = await Order.find({ "userInfo.userId": id })
-      .populate("items")
       .populate("userInfo.userId", "name email phone")
-      .populate("voucherId");
+      .populate("voucherId")
+      .populate({
+        path: "items",
+        populate: [
+          {
+            path: "design",
+            model: "Design",
+          },
+          {
+            path: "product",
+            model: "Shirt",
+          },
+        ],
+      });
 
     // if (orders.length === 0) {
     //   return res

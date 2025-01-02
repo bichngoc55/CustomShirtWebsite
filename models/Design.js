@@ -26,6 +26,7 @@ const DesignSchema = new Schema(
         properties: {
           font: String,
           fontSize: Number,
+          strokeWidth: Number,
           points: [
             {
               x: { type: Number },
