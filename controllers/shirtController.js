@@ -117,12 +117,12 @@ const deleteShirt = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
+ 
 module.exports = {
   getAllShirts,
   getDetailShirt,
   updateShirt,
   addShirt,
   deleteShirt,
-  updateShirtReview,
+  updateShirtReview, 
 };

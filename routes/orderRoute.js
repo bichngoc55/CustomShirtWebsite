@@ -9,9 +9,9 @@ const {
   updateDeliveryStatus,
   cancelOrder,
   updateOrderStatus,
-  getTopSellingShirts,
-  autoRefuseUnconfirmedOrders,
-  getOrdersByCustomerId,
+  getTopSellingShirts, 
+  getOrdersByCustomerId, 
+  autoRefuseUnconfirmedOrders,updateOrderShipping,  
 } = require("../controllers/orderController");
 const verifyToken = require("../middleware/authMiddleware.js");
 
@@ -26,6 +26,8 @@ router.get("/customer/:id", getOrdersByCustomerId);
 
 router.post("/add", createOrder);
 router.patch("/:id", updateOrder);
-router.delete("/:id", deleteOrder);
+router.patch("/shippingfee/:id",updateOrderShipping)
+
+router.delete("/:id", deleteOrder); 
 
 module.exports = router;

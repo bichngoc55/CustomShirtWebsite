@@ -44,6 +44,7 @@ const UserSchema = new Schema(
     },
     status: {
       type: String,
+      enum:["active", "down"],
       default: "active",
     },
     walletAddresses: [
@@ -80,7 +81,7 @@ const UserSchema = new Schema(
       {
         from: { type: Schema.Types.ObjectId, ref: "Message" },
       },
-    ],
+    ], 
   },
   { timestamps: true }
 );

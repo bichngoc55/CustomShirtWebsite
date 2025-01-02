@@ -17,6 +17,7 @@ const createVoucher = async (req, res) => {
       endDate,
       conditions,
     } = req.body;
+    console.log("req body: ", req.body);
 
     await validateVoucherDates(startDate, endDate);
     await validateUniqueVoucherCode(code);
@@ -30,6 +31,7 @@ const createVoucher = async (req, res) => {
       endDate,
       conditions,
     });
+    console.log("req body: ", req.body);
 
     await voucher.save();
 
@@ -61,10 +63,11 @@ const getVouchers = async (req, res) => {
 
     // Base query for active vouchers
     let baseQuery = {
-      startDate: { $lte: currentDate },
+      // startDate: { $gte: currentDate },
       endDate: { $gte: currentDate },
       status: "active",
     };
+    console.log("base query: ,",baseQuery);
 
     let vouchers = [];
 
