@@ -127,8 +127,33 @@ const updateOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+    console.log("res body : ",req.body)
+    // if(req.body == )
+    const { orderStatus , deliveryStatus } = req.body;
+    if(orderStatus !== undefined || orderStatus !== null){
+      if(order.orderStatus==='pending' && orderStatus==='confirmed'){
+        order.deliveryStatus = "On delivery";
+        await sendOrderNotification(order, "confirmed");      res.status(200).json(order);
+      }
+      else if (order.orderStatus==='pending' && orderStatus === "refused") {
+        order.deliveryStatus = "cancelled";
+        await sendOrderNotification(order, "cancelled");
+        res.status(200).json(order);
+  
+      }  
+    }
+    if (deliveryStatus !== undefined || deliveryStatus !== null){
+      if(order.deliveryStatus==="On delivery" ){ 
+        order.paymentDetails.status  = "completed";
+        order.deliveryStatus = "delivered"
+        await sendOrderNotification(order, "delivered");     
+         res.status(200).json(order);
+      }
+      
+    }
     res.status(200).json(order);
-  } catch (error) {
+
+   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
@@ -308,22 +333,25 @@ const cancelOrder = async (req, res) => {
 // };
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+     const { status } = req.body;
+     console.log("status: ",status)
 
     if (!["confirmed", "refused"].includes(status)) {
       return res.status(400).json({
         message:
           "Invalid status. Status must be either 'confirmed' or 'refused'",
       });
-    }
+    } 
 
+ 
+//     const order = await Order.findById(req.params.id);
     const order = await Order.findById(req.params.id).populate({
       path: "items",
       populate: {
         path: "product",
         model: "Shirt",
       },
-    });
+    }); 
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -498,9 +526,9 @@ module.exports = {
   cancelOrder,
   updateOrderStatus,
   scheduledDeliveryStatusUpdate,
-  getTopSellingShirts, 
-  autoRefuseUnconfirmedOrders,
-  getOrdersByCustomerId,
-  updateOrderShipping, 
-  getTotalOrders, 
-};
+   getTopSellingShirts,
+  updateOrderShipping,
+  autoRefuseUnconfirmedOrders, 
+    getOrdersByCustomerId,
+   getTotalOrders, 
+ };
