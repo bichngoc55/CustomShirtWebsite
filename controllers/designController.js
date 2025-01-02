@@ -9,6 +9,7 @@ const createDesign = async (req, res) => {
       color,
       elements,
       previewImage,
+      cloudinaryImage,
       price,
       note,
     } = req.body;
@@ -21,6 +22,7 @@ const createDesign = async (req, res) => {
       elements,
       previewImage,
       price,
+      cloudinaryImage,
       isNFT: false,
       note,
     });

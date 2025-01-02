@@ -1,5 +1,6 @@
 const Shirts = require("../models/Shirt.js");
 const Order = require("../models/Order.js");
+const OrderDetails = require("../models/OrderDetails.js");
 
 // Get all shirts
 
@@ -47,10 +48,17 @@ const updateShirtReview = async (req, res) => {
     const { id } = req.params;
     const { reviewCustomerID, stars, comment, reviewImage, productId } =
       req.body;
-    // console.log("Update", id, reviewCustomerID, stars, comment);
+    console.log("Update", id, reviewCustomerID, stars, comment, productId);
+    const orderDetails = await OrderDetails.find({
+      product: productId,
+    });
+
+    const orderDetailIds = orderDetails.map((detail) => detail._id);
+
+    // Then find the Order
     const order = await Order.findOne({
       "userInfo.userId": reviewCustomerID,
-      items: { $in: [productId] },
+      items: { $in: orderDetailIds },
       deliveryStatus: "delivered",
     });
 

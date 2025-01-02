@@ -19,8 +19,9 @@ const orderDetailsRoutes = require("./routes/orderDetailsRoutes.js");
 const feedbackRoutes = require("./routes/feedbackRoute.js");
 const TitanImageService = require("./utils/model.js");
 const designRoutes = require("./routes/designRoute.js");
-const vnpayRoutes = require("./routes/vnpayRoutes");
-const stasRoute=  require("./routes/stasRoute.js");
+const vnpayRoutes = require("./routes/vnpayRoutes"); 
+const nftRoutes = require("./routes/nftRoute.js"); 
+const stasRoute=  require("./routes/stasRoute.js"); 
 
 // const { createHelia } = require("helia");
 // const { unixfs } = require("@helia/unixfs");
@@ -75,8 +76,9 @@ app.use("/orderDetails", orderDetailsRoutes);
 app.use("/order", orderRoutes);
 app.use("/feedback", feedbackRoutes);
 app.use("/design", designRoutes);
-app.use("/vnpay", vnpayRoutes);
-app.use("/revenue", stasRoute);
+app.use("/vnpay", vnpayRoutes); 
+app.use("/nft", nftRoutes); 
+app.use("/revenue", stasRoute); 
 
 app.post("/api/generate-image", async (req, res) => {
   const { prompt } = req.body;

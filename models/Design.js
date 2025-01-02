@@ -15,10 +15,6 @@ const DesignSchema = new Schema(
       type: String,
       enum: ["black", "white"],
     },
-    // canvasPreview: {
-    //   type: String,
-    //   default: "",
-    // },
     elements: [
       {
         type: {
@@ -30,6 +26,7 @@ const DesignSchema = new Schema(
         properties: {
           font: String,
           fontSize: Number,
+          strokeWidth: Number,
           points: [
             {
               x: { type: Number },
@@ -68,6 +65,9 @@ const DesignSchema = new Schema(
       type: String,
       enum: ["not_minted", "pending", "minted", "failed"],
       default: "not_minted",
+    },
+    cloudinaryImage: {
+      type: String,
     },
     note: {
       type: String,

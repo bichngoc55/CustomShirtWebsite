@@ -8,7 +8,7 @@ class VNPayUtils {
     this.tmnCode = process.env.vnp_TmnCode;
     this.secretKey = process.env.vnp_HashSecret;
     this.vnpUrl = process.env.vnp_Url;
-    this.returnUrl = "http://localhost:3006/payment-result";
+    this.returnUrl = "http://localhost:3000/payment-result";
     this.createPaymentUrl = this.createPaymentUrl.bind(this);
     this.handleIPN = this.handleIPN.bind(this);
     this.handleReturn = this.handleReturn.bind(this);
@@ -270,19 +270,19 @@ class VNPayUtils {
           }
         }
 
-        const redirectUrl = `http://localhost:3006/payment-result?responseCode=${responseCode}&orderId=${orderId}`;
+        const redirectUrl = `http://localhost:3000/payment-result?responseCode=${responseCode}&orderId=${orderId}`;
         console.log("Redirecting to frontend:", redirectUrl);
         return res.redirect(redirectUrl);
       }
 
       // Redirect with error
       res.redirect(
-        `http://localhost:3006/payment-result?responseCode=97&orderId=${vnp_Params["vnp_TxnRef"]}`
+        `http://localhost:3000/payment-result?responseCode=97&orderId=${vnp_Params["vnp_TxnRef"]}`
       );
     } catch (error) {
       console.error("Return Error:", error);
       res.redirect(
-        `http://localhost:3006/payment-result?responseCode=99&orderId=${req.query["vnp_TxnRef"]}`
+        `http://localhost:3000/payment-result?responseCode=99&orderId=${req.query["vnp_TxnRef"]}`
       );
     }
   }
