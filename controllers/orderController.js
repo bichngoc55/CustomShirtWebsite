@@ -332,25 +332,25 @@ const cancelOrder = async (req, res) => {
 //   }
 // };
 const updateOrderStatus = async (req, res) => {
-  try {
-    const { status } = req.body;
-    console.log("status: ", status);
+  try {  
+     const { status } = req.body;
+     console.log("status: ",status)
+ 
 
     if (!["confirmed", "refused"].includes(status)) {
       return res.status(400).json({
         message:
           "Invalid status. Status must be either 'confirmed' or 'refused'",
       });
-    }
-
-    //     const order = await Order.findById(req.params.id);
+    } 
+ 
     const order = await Order.findById(req.params.id).populate({
       path: "items",
       populate: {
         path: "product",
         model: "Shirt",
       },
-    });
+    }); 
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -528,5 +528,4 @@ module.exports = {
   updateOrderShipping,
   autoRefuseUnconfirmedOrders,
   getOrdersByCustomerId,
-  //  getTotalOrders,
-};
+ }; 
