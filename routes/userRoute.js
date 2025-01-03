@@ -12,18 +12,18 @@ const {
 const checkIsAdmin = require("../middleware/isAdminMiddleware.js");
 const router = express.Router();
 router.patch("/recentProduct", addRecentViewdProduct);
-router.patch("/:id",  updateUser);
+router.patch("/:id", updateUser);
 
 router.get("/recentProduct/:id", getRecentViewdProduct);
 /* READ */
 router.get("/", getAllUsers);
 /* READ */
-router.get("/:id", verifyToken, getDetailUser);
+router.get("/:id", getDetailUser);
 /* CREATE */
 router.post("/add", verifyToken, checkIsAdmin, addUser);
 /* UPDATE */
- /* UPDATE */
+/* UPDATE */
 
 /* DELETE */
-router.delete("/:id",  deleteUser);
+router.delete("/:id", deleteUser);
 module.exports = router;

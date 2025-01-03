@@ -1,6 +1,6 @@
 const Order = require("../models/Order.js");
 const { emailTemplates, transporter } = require("../utils/email.js");
-const OrderDetails = require("../models/OrderDetails.js"); 
+const OrderDetails = require("../models/OrderDetails.js");
 
 const sendOrderNotification = async (order, type) => {
   try {
@@ -124,15 +124,36 @@ const updateOrder = async (req, res) => {
       new: true,
       runValidators: true,
     });
+
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+
+    const { orderStatus, deliveryStatus } = req.body;
+
+    if (orderStatus !== undefined && orderStatus !== null) {
+      if (order.orderStatus === "pending" && orderStatus === "confirmed") {
+        order.deliveryStatus = "On delivery";
+        await sendOrderNotification(order, "confirmed");
+      } else if (order.orderStatus === "pending" && orderStatus === "refused") {
+        order.deliveryStatus = "cancelled";
+        await sendOrderNotification(order, "cancelled");
+      }
+    }
+
+    if (deliveryStatus !== undefined && deliveryStatus !== null) {
+      if (order.deliveryStatus === "delivered") {
+        order.paymentDetails.status = "completed";
+        await sendOrderNotification(order, "delivered");
+      }
+    }
+
+    await order.save();
     res.status(200).json(order);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
-
 // Delete order
 const deleteOrder = async (req, res) => {
   try {
@@ -162,21 +183,25 @@ const updateOrderShipping = async (req, res) => {
     const { billingAddress, shippingFee, total } = req.body;
 
     // Validate inputs
-    if (!billingAddress || !billingAddress.province || !billingAddress.district) {
+    if (
+      !billingAddress ||
+      !billingAddress.province ||
+      !billingAddress.district
+    ) {
       return res.status(400).json({ message: "Invalid address information" });
     }
 
-    if (typeof shippingFee !== 'number' || shippingFee < 0) {
+    if (typeof shippingFee !== "number" || shippingFee < 0) {
       return res.status(400).json({ message: "Invalid shipping fee" });
     }
 
-    if (typeof total !== 'number' || total < 0) {
+    if (typeof total !== "number" || total < 0) {
       return res.status(400).json({ message: "Invalid total amount" });
     }
 
     // Find and update the order
     const order = await Orders.findById(id);
-    
+
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -191,13 +216,13 @@ const updateOrderShipping = async (req, res) => {
 
     return res.status(200).json({
       message: "Order shipping details updated successfully",
-      order
+      order,
     });
   } catch (error) {
-    console.error('Error updating order shipping:', error);
+    console.error("Error updating order shipping:", error);
     return res.status(500).json({
       message: "Failed to update order shipping details",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -309,6 +334,7 @@ const cancelOrder = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    console.log("status: ", status);
 
     if (!["confirmed", "refused"].includes(status)) {
       return res.status(400).json({
@@ -317,6 +343,7 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
+    //     const order = await Order.findById(req.params.id);
     const order = await Order.findById(req.params.id).populate({
       path: "items",
       populate: {
@@ -485,8 +512,7 @@ const autoRefuseUnconfirmedOrders = async (req, res) => {
       error: error.message,
     });
   }
-}; 
-
+};
 
 module.exports = {
   getAllOrders,
@@ -498,9 +524,9 @@ module.exports = {
   cancelOrder,
   updateOrderStatus,
   scheduledDeliveryStatusUpdate,
-  getTopSellingShirts, 
+  getTopSellingShirts,
+  updateOrderShipping,
   autoRefuseUnconfirmedOrders,
   getOrdersByCustomerId,
-  updateOrderShipping, 
-  getTotalOrders, 
+  //  getTotalOrders,
 };
