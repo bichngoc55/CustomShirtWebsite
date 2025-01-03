@@ -92,34 +92,51 @@ const addRecentViewdProduct = async (req, res) => {
       });
     }
 
-    const user = await User.findById(userId);
+    // Single atomic operation to update recent products
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        // Remove existing occurrence of the product
+        $pull: {
+          recentViewedShirts: {
+            shirtId: productId,
+          },
+        },
+      }
+    ).exec();
 
-    if (!user) {
+    if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Initialize recentViewedShirts if undefined
-    if (!user.recentViewedShirts) {
-      user.recentViewedShirts = [];
-    }
-
-    // Remove existing entry if present
-    user.recentViewedShirts = user.recentViewedShirts.filter(
+    // Get current recent products without the one we just removed
+    const currentRecent = updatedUser.recentViewedShirts.filter(
       (item) => item.shirtId.toString() !== productId.toString()
     );
 
-    // Add new entry at the beginning
-    user.recentViewedShirts.unshift({ shirtId: productId });
+    // Create new array with the new product at the start
+    const newRecentProducts = [{ shirtId: productId }, ...currentRecent].slice(
+      0,
+      4
+    ); // Limit to 4 items
 
-    // Limit to 4 items
-    user.recentViewedShirts = user.recentViewedShirts.slice(0, 4);
-
-    // Save with error handling
-    const updatedUser = await user.save();
+    // Update with the new array in a single operation
+    const result = await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        $set: {
+          recentViewedShirts: newRecentProducts,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).exec();
 
     return res.status(200).json({
       success: true,
-      data: updatedUser,
+      data: result,
     });
   } catch (error) {
     console.error("Error in addRecentViewedProduct:", error);
@@ -133,7 +150,7 @@ const addRecentViewdProduct = async (req, res) => {
 const getRecentViewdProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    // const user = await User.findById(userId);
+
     const user = await User.findById(id)
       .populate("recentViewedShirts.shirtId")
       .exec();
